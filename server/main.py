@@ -1,6 +1,6 @@
+from sqlalchemy.orm import Session
 from fastapi import FastAPI, UploadFile, File, Depends
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from database import SessionLocal, engine
 import models
