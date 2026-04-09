@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, UploadFile, File, Depends
+from fastapi import FastAPI, UploadFile, File, Depends, Form
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from database import SessionLocal, engine
@@ -34,18 +34,55 @@ class EntrySchema(BaseModel):
     timestamp: str
 
 # CREATE ENTRY (WITHOUT IMAGE)
+# from fastapi import Form, UploadFile, File, Depends
+# from sqlalchemy.orm import Session
+from datetime import datetime
+
 @app.post("/entry")
-def create_entry(entry: EntrySchema):
-    print("Entry received")
-    db = SessionLocal()
-    
-    print(entry)
-    db_entry = models.Entry(**entry.dict(), image_path="")
+def create_entry(
+    type: str = Form(...),
+    vehicle_no: str = Form(...),
+    party: str = Form(...),
+    item: str = Form(...),
+    quantity: str = Form(...),
+    document_no: str = Form(...),
+    timestamp: str = Form(...),
+    file: UploadFile = File(None),
+    db: Session = Depends(get_db)
+):
+    print("Entry received ✅")
+
+    image_path = ""
+
+    # Save image if present
+    if file:
+        filename = f"{datetime.now().timestamp()}_{file.filename}"
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        image_path = file_path
+
+    # Save to DB
+    db_entry = models.Entry(
+        type=type,
+        vehicle_no=vehicle_no,
+        party=party,
+        item=item,
+        quantity=quantity,
+        document_no=document_no,
+        timestamp=timestamp,
+        image_path=image_path
+    )
+
     db.add(db_entry)
     db.commit()
     db.refresh(db_entry)
 
-    return {"status": "saved"}
+    print("Saved to DB ✅", db_entry.id)
+
+    return {"status": "saved", "id": db_entry.id}
 
 # IMAGE UPLOAD
 @app.post("/upload")
@@ -154,3 +191,4 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # sudo journalctl -u fastapi -n 50 --no-pager
 # psql -U gate_user -d gate_app -h localhost
 # SELECT COUNT(*) FROM entries
+# sudo journalctl -u fastapi -f
