@@ -19,7 +19,11 @@ Future<void> syncPendingData() async {
   );
 
   for (var entry in pending) {
-    bool success = await sendToServer(entry);
+    Map<String, dynamic> cleanEntry = Map.from(entry);
+    cleanEntry.remove('id');
+    cleanEntry.remove('is_synced');
+
+    bool success = await sendToServer(cleanEntry);
 
     if (success) {
       await db.update(

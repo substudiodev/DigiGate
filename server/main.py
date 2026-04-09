@@ -52,3 +52,32 @@ def upload_image(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     return {"file_path": file_path}
+
+# # Temporary storage
+# data_store = []
+
+# class Item(BaseModel):
+#     name: str
+#     message: str
+
+users = [
+    {"username": "security1", "password": "1234", "role": "security"},
+    {"username": "officer1", "password": "1234", "role": "officer"},
+]
+
+@app.post("/login")
+def login(data: dict):
+    for user in users:
+        if user["username"] == data["username"] and user["password"] == data["password"]:
+            return {"status": "success", "role": user["role"]}
+    return {"status": "fail"}
+
+
+# @app.post("/submit")
+# def submit(item: Item):
+#     data_store.append(item.dict())
+#     return {"status": "saved"}
+
+# @app.get("/data")
+# def get_data():
+#     return {"data": data_store}
