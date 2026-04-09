@@ -33,15 +33,16 @@ Future<bool> sendToServer(Map<String, dynamic> entry) async {
       'POST',
       Uri.parse("${baseUrl}entry"),
     );
-
+    print("SENDING DATA:");
+    print(entry);
     // Add fields
-    request.fields['type'] = entry['type'];
-    request.fields['vehicle_no'] = entry['vehicle_no'];
-    request.fields['party'] = entry['party'];
-    request.fields['item'] = entry['item'];
-    request.fields['quantity'] = entry['quantity'];
-    request.fields['document_no'] = entry['document_no'];
-    request.fields['timestamp'] = entry['timestamp'];
+    request.fields['type'] = entry['type']?.toString() ?? '';
+    request.fields['vehicle_no'] = entry['vehicle_no']?.toString() ?? '';
+    request.fields['party'] = entry['party']?.toString() ?? '';
+    request.fields['item'] = entry['item']?.toString() ?? '';
+    request.fields['quantity'] = entry['quantity']?.toString() ?? '';
+    request.fields['document_no'] = entry['document_no']?.toString() ?? '';
+    request.fields['timestamp'] = entry['timestamp']?.toString() ?? '';
 
     // ✅ Add image if exists
     if (entry['image_path'] != null &&
@@ -54,6 +55,10 @@ Future<bool> sendToServer(Map<String, dynamic> entry) async {
 
     var response = await request.send();
 
+    if (response.statusCode != 200) {
+      var respStr = await response.stream.bytesToString();
+      print("Error response: $respStr");
+    }
     return response.statusCode == 200;
   } catch (e) {
     print("Upload error: $e");
