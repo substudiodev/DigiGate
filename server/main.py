@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Depends
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from database import SessionLocal, engine

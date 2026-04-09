@@ -86,7 +86,7 @@ Future<void> submitData() async {
   Future<void> fetchData() async {
   try {
     final response = await http.get(
-      Uri.parse("${baseUrl}data"),
+      Uri.parse("${baseUrl}entries"),
     );
 
     print("Fetch Status: ${response.statusCode}");
