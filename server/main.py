@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, Depends
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from database import SessionLocal, engine
 import models
@@ -140,3 +141,11 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # @app.get("/data")
 # def get_data():
 #     return {"data": data_store}
+
+
+
+
+
+
+
+# sudo journalctl -u fastapi -n 50 --no-pager
