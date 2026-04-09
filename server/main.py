@@ -1,0 +1,54 @@
+from fastapi import FastAPI, UploadFile, File
+from pydantic import BaseModel
+from database import SessionLocal, engine
+import models
+import shutil
+import os
+
+models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+# Ensure image folder exists
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Pydantic model
+class EntrySchema(BaseModel):
+    type: str
+    vehicle_no: str
+    party: str
+    item: str
+    quantity: str
+    document_no: str
+    timestamp: str
+
+# CREATE ENTRY (WITHOUT IMAGE)
+@app.post("/entry")
+def create_entry(entry: EntrySchema):
+    db = SessionLocal()
+
+    db_entry = models.Entry(**entry.dict(), image_path="")
+    db.add(db_entry)
+    db.commit()
+    db.refresh(db_entry)
+
+    return {"status": "saved"}
+
+# IMAGE UPLOAD
+@app.post("/upload")
+def upload_image(file: UploadFile = File(...)):
+    file_path = f"{UPLOAD_FOLDER}/{file.filename}"
+
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return {"file_path": file_path}

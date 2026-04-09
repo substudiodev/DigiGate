@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+final String baseUrl = "http://140.245.214.250:8001/";
 
 Future<String?> login(String username, String password) async {
   try {
     var response = await http.post(
-      Uri.parse("http://140.245.214.250:8001/login"),
+      Uri.parse("${baseUrl}login"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "username": username,
@@ -26,12 +27,13 @@ Future<String?> login(String username, String password) async {
 
 Future<bool> sendToServer(Map<String, dynamic> entry) async {
   try {
+    print(entry);
     var response = await http.post(
-      Uri.parse("http://140.245.214.250:8001/entry"),
+      Uri.parse("${baseUrl}submit"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(entry),
     );
-
+    print("\n");
     return response.statusCode == 200;
   } catch (e) {
     return false;
