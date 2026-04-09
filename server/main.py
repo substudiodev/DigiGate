@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from database import SessionLocal, engine
 import models
@@ -72,7 +73,65 @@ def login(data: dict):
             return {"status": "success", "role": user["role"]}
     return {"status": "fail"}
 
+# ✅ GET ALL ENTRIES
+@app.get("/entries")
+def get_entries(db: Session = Depends(get_db)):
+    entries = db.query(models.Entry).order_by(models.Entry.id.desc()).all()
 
+    result = []
+    for e in entries:
+        result.append({
+            "id": e.id,
+            "type": e.type,
+            "vehicle_no": e.vehicle_no,
+            "party": e.party,
+            "item": e.item,
+            "quantity": e.quantity,
+            "document_no": e.document_no,
+            "timestamp": e.timestamp,
+            "image_path": e.image_path
+        })
+
+    return {"data": result}
+
+from typing import Optional
+
+# ✅ FILTERED ENTRIES
+@app.get("/entries/filter")
+def filter_entries(
+    item: Optional[str] = None,
+    type: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Entry)
+
+    if item:
+        query = query.filter(models.Entry.item.ilike(f"%{item}%"))
+
+    if type:
+        query = query.filter(models.Entry.type == type)
+
+    entries = query.order_by(models.Entry.id.desc()).all()
+
+    result = []
+    for e in entries:
+        result.append({
+            "id": e.id,
+            "type": e.type,
+            "vehicle_no": e.vehicle_no,
+            "party": e.party,
+            "item": e.item,
+            "quantity": e.quantity,
+            "document_no": e.document_no,
+            "timestamp": e.timestamp,
+            "image_path": e.image_path
+        })
+
+    return {"data": result}
+
+
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # @app.post("/submit")
 # def submit(item: Item):
 #     data_store.append(item.dict())
