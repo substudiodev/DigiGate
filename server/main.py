@@ -36,8 +36,10 @@ class EntrySchema(BaseModel):
 # CREATE ENTRY (WITHOUT IMAGE)
 @app.post("/entry")
 def create_entry(entry: EntrySchema):
+    print("Entry received")
     db = SessionLocal()
-
+    
+    print(entry)
     db_entry = models.Entry(**entry.dict(), image_path="")
     db.add(db_entry)
     db.commit()
@@ -77,6 +79,7 @@ def login(data: dict):
 # ✅ GET ALL ENTRIES
 @app.get("/entries")
 def get_entries(db: Session = Depends(get_db)):
+    print("Requested entries")
     entries = db.query(models.Entry).order_by(models.Entry.id.desc()).all()
 
     result = []
@@ -149,3 +152,5 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 # sudo journalctl -u fastapi -n 50 --no-pager
+# psql -U gate_user -d gate_app -h localhost
+# SELECT COUNT(*) FROM entries

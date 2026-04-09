@@ -95,10 +95,16 @@ Future<void> submitData() async {
     final data = jsonDecode(response.body);
 
     String temp = "";
-
+    print(data["data"]);
+    print("\n");
     for (var item in data["data"]) {
-      temp += "Name: ${item["name"]}\n";
-      temp += "Message: ${item["message"]}\n\n";
+      temp += "Vehicle: ${item["vehicle_no"]}\n";
+      temp += "Party: ${item["party"]}\n";
+      temp += "Item: ${item["item"]}\n";
+      temp += "Qty: ${item["quantity"]}\n";
+      temp += "Type: ${item["type"]}\n";
+      temp += "Doc: ${item["document_no"]}\n";
+      temp += "Time: ${item["timestamp"]}\n\n";
     }
 
     setState(() {
